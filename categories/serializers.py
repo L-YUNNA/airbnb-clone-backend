@@ -1,19 +1,10 @@
 from rest_framework import serializers
 from .models import Category
 
-class CategorySerializer(serializers.Serializer):
-    pk = serializers.IntegerField(read_only=True)
-    name = serializers.CharField(required=True, 
-                                 max_length=50,)
-    kind = serializers.ChoiceField(choices=Category.CategoryKindChoices.choices,)
-    created_at = serializers.DateTimeField(read_only=True)
-
-    def create(self, validated_data):
-        return Category.objects.create(**validated_data)
-
-    def update(self, instance, validated_data):  # instance는 db에서 가져온 category 값
-        instance.name = validated_data.get("name", instance.name)
-        instance.kind = validated_data.get("kind", instance.kind)
-        instance.save()
-        return instance
-    
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        exclude = (
+            "created_at",
+        )
+        #fields = "__all__"   # 모든 필드를 보이게 하고 싶은 경우
