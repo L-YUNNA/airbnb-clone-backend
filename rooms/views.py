@@ -296,7 +296,13 @@ class RoomBookings(APIView):
         room = self.get_object(pk)
         serializer = CreateRoomBookingSerializer(data=request.data)
         if serializer.is_valid():
-            return Response({'ok':True})
+            booking = serializer.save(
+                room=room,
+                user=request.user,
+                kind=Booking.BookingKindChoices.ROOM,
+            )
+            serializer = PublicBookingSerializer(booking)   # 여기서는 생성한 booking을 보여주는 것이므로 PublicBookingSerializer 사용
+            return Response(serializer.data)
         else:
             return Response(serializer.errors)
     
