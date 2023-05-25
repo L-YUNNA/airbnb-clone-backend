@@ -1,4 +1,5 @@
 from rest_framework.serializers import ModelSerializer
+from rest_framework import serializers
 from .models import User
 
 class TinyUserSerializer(ModelSerializer):
@@ -24,13 +25,22 @@ class PrivateUserSerializer(ModelSerializer):
                    "user_permissions",)   
         
 class PublicUserSerializer(ModelSerializer):
+
+    num_of_rooms = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = (
             "name",
             "avatar",
             "username",
-            "is_host",
             "gender",
+            "is_host",
+            "num_of_rooms",
             "language",
         )
+
+    def get_num_of_rooms(self, user):
+        return user.num_of_rooms()
+
+    
