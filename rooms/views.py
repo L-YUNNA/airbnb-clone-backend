@@ -19,7 +19,7 @@ from .serializers import (AmenitySerializer,
 from categories.models import Category
 from bookings.models import Booking
 from bookings.serializers import PublicBookingSerializer, CreateRoomBookingSerializer
-from reviews.serializers import ReviewSerializer
+from reviews.serializers import UserReviewSerializer
 from medias.serializers import PhotoSerializer
 
 
@@ -203,19 +203,19 @@ class RoomReviews(APIView):
         end = start + page_size
 
         room = self.get_object(pk)
-        serializer = ReviewSerializer(
+        serializer = UserReviewSerializer(
             room.reviews.all()[start:end],
             many=True)
         return Response(serializer.data)
     
     def post(self, request, pk):
-        serializer = ReviewSerializer(data=request.data)
+        serializer = UserReviewSerializer(data=request.data)
         if serializer.is_valid():
             review = serializer.save(
                 user = request.user,
                 room = self.get_object(pk),
             )
-            serializer = ReviewSerializer(review)
+            serializer = UserReviewSerializer(review)
             return Response(serializer.data)
     
 class RoomAmenities(APIView):

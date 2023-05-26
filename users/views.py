@@ -1,11 +1,18 @@
+from django.conf import settings
+
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.exceptions import ParseError, NotFound
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
 from . import serializers
+from reviews.serializers import UserReviewSerializer, HostReviewSerializer
+from reviews.models import Review
+from rooms.serializers import TinyRoomSerializer, RoomListSerializer
+from rooms.models import Room
 from .models import User
+
 
 
 class Me(APIView):
@@ -78,3 +85,96 @@ class ChangePassword(APIView):
         
         else:
             raise ParseError
+
+class UserReviews(APIView):   # 로그인 된 유저가 작성한 리뷰 보여줌
+
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_object(self, username):
+        try:
+            return User.objects.get(username=username)
+        except User.DoesNotExist:
+            raise NotFound
+
+    def get(self, request, username):
+        try:
+            page = request.query_params.get('page', 1)
+            page = int(page)
+        except ValueError:
+            page = 1
+
+        page_size = settings.PAGE_SIZE
+        start = (page - 1) * page_size
+        end = start + page_size
+
+        user = self.get_object(username)
+        reviews = Review.objects.filter(user=user)
+        serializer = UserReviewSerializer(
+            #user.reviews.all()[start:end],
+            reviews[start:end],
+            many=True)
+        return Response(serializer.data)
+    
+class HostRooms(APIView):
+
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_object(self, username):
+        try:
+            return User.objects.get(username=username)
+        except User.DoesNotExist:
+            raise NotFound
+
+    def get(self, request, username):
+        try:
+            page = request.query_params.get('page', 1)
+            page = int(page)
+        except ValueError:
+            page = 1
+
+        page_size = settings.PAGE_SIZE
+        start = (page - 1) * page_size
+        end = start + page_size
+
+        owner = self.get_object(username)
+        serializer = TinyRoomSerializer(
+            owner.rooms.all()[start:end],
+            many=True)
+        return Response(serializer.data)
+
+class HostReviews(APIView):
+
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_object(self, username):
+        try:
+            return User.objects.get(username=username)
+        except User.DoesNotExist:
+            raise NotFound
+
+    def get(self, request, username):
+        try:
+            page = request.query_params.get('page', 1)
+            page = int(page)
+        except ValueError:
+            page = 1
+
+        page_size = settings.PAGE_SIZE
+        start = (page - 1) * page_size
+        end = start + page_size
+
+        owner = self.get_object(username)
+        # 일단 나는 해당 호스트가 가진 모든 숙소에 대한 리뷰들을 한번에 보여주는 걸 만들고 싶은데.. 어렵다.. 
+        # print(dir(owner))
+        # print(owner.rooms.all())
+        # print(Room.objects.filter(owner=owner))
+
+        if owner.is_host == False:
+            raise ParseError("This user is not a host")
+        # for user_room in Room.objects.filter(owner=owner):
+        #     print(user_room.reviews.all())
+        serializer = HostReviewSerializer(
+            owner.reviews.all()[start:end],
+            many=True)
+        return Response(serializer.data)
+    

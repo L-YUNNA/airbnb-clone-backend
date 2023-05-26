@@ -23,8 +23,11 @@ class User(AbstractUser):
     language = models.CharField(max_length=2, choices=LanguageChoices.choices)
     currency = models.CharField(max_length=5, choices=CurrencyChoices.choices)
 
-    def num_of_rooms(self):
+    def total_rooms(self):
         count = self.rooms.count()
         print(count)
         return count
+    
+    def total_reviews(self):
+        return self.reviews.count()
     
