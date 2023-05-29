@@ -10,7 +10,7 @@ class Wishlist(CommonModel):
     name = models.CharField(max_length=150)
     rooms = models.ManyToManyField("rooms.Room",
                                    related_name="wishlists")
-    experience = models.ManyToManyField("experiences.Experience",
+    experiences = models.ManyToManyField("experiences.Experience",
                                         related_name="wishlists")
     user = models.ForeignKey("users.User",
                              on_delete=models.CASCADE,

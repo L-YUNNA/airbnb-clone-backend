@@ -30,7 +30,7 @@ class CreateRoomBookingSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Can't book in the past!")
         return value
     
-    def validate(self, data):
+    def validate(self, data):   # 여러 fields를 동시에 validate하려면 validate라는 function 사용 (value가 아닌 모든 data를 받음)
         if data['check_out'] <= data['check_in']:
             raise serializers.ValidationError("Check in should be smaller than check out.")
         
@@ -41,7 +41,26 @@ class CreateRoomBookingSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Those (or some) of those dates are already taken.")
         
         return data
+    
+class CreateExperienceBookingSerializer(serializers.ModelSerializer):
 
+    experience_time = serializers.DateTimeField()
+
+    class Meta:
+        model = Booking
+        fields = (                # post하기 위해서 user에게 받는 데이터만 작성
+            "experience_time",
+            "guests",
+        )
+    
+    def validate_experience_time(self, value):   # value는 experience_time으로 받은 데이터 값
+        now = timezone.localtime(timezone.now())
+        if now > value:
+            raise serializers.ValidationError("Can't book in the past!")
+        if Booking.objects.filter(experience_time=value).exists():
+            raise serializers.ValidationError("That time is already taken.")
+        return value    # value가 return 되면 그 value는 검증된 것 
+    
 
 # get 메서드를 위한 serializer, 모두가 볼 수 있는 public serializer
 class PublicBookingSerializer(serializers.ModelSerializer):

@@ -31,6 +31,17 @@ class Experience(CommonModel):
 
     def __str__(self):
         return self.name
+    
+    def rating(experience):   # room=self
+        count = experience.reviews.count()
+        if count==0:
+            return 0
+        else:
+            total_rating = 0
+            # print(room.reviews.all().values("rating"))   # <QuerySet [{‘rating’: 5}, {‘rating’: 3}, … >
+            for review in experience.reviews.all().values("rating"):
+                total_rating += review["rating"]
+            return round(total_rating/count, 1)
 
 
 class Perk(CommonModel):
