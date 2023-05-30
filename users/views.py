@@ -1,3 +1,5 @@
+import jwt
+
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 
@@ -114,6 +116,29 @@ class LogOut(APIView):
         logout(request)
         return Response({"ok":"bye!"})
 
+
+class JWTLogIn(APIView):
+
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        if not username or not password:
+            raise ParseError  # 1.
+        user = authenticate(
+            request,
+            username=username,
+            password=password,
+        )   # 2. 
+        if user:   # 3.
+            token = jwt.encode({"pk": user.pk}, 
+                               settings.SECRET_KEY,
+                               algorithm="HS256",
+                               )
+            return Response({"token": token})
+        else:
+            return Response({"error":"wrong password"})
+
+        
 
 class UserReviews(APIView):   # 로그인 된 유저가 작성한 리뷰 보여줌
 

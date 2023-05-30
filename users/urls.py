@@ -6,10 +6,11 @@ urlpatterns = [
     path("", views.Users.as_view()),
     path("me", views.Me.as_view()),
     path("change-password", views.ChangePassword.as_view()),
-    path("log-in", views.LogIn.as_view()),
-    path("log-out", views.LogOut.as_view()),
     
-    path("token-login", obtain_auth_token),
+    path("log-in", views.LogIn.as_view()),    # username, password를 이용한 쿠키 로그인
+    path("log-out", views.LogOut.as_view()),
+    path("token-login", obtain_auth_token),   # username, password를 이용한 auth Token 로그인
+    path("jwt-login", views.JWTLogIn.as_view()),   # username, password를 이용한 JWT 로그인
 
     path("@<str:username>", views.PublicUser.as_view()),
     path("@<str:username>/reviews", views.UserReviews.as_view()),
