@@ -32,8 +32,12 @@ class TestAmenities(APITestCase):
     def test_create_amenity(self):
 
         new_amenity_name = "New Amenity"
-        wrong_name = "abababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababab"
         new_amenity_description = "New Amenity desc."
+        # 글자 수 150개 이상의 문자 생성
+        string_pool = string.ascii_letters
+        wrong_name = ""
+        for i in range(155):
+            wrong_name += random.choice(string_pool)
 
         # Amenity 하나 생성
         response = self.client.post(
@@ -59,7 +63,7 @@ class TestAmenities(APITestCase):
         )
         
         # 어떠한 데이터를 보냈을 때, 에러 잘 나는지 확인
-        response = self.client.post(self.URL)  # 아무 데이터도 보내지 않음 (그러나 Amenity 모델에서 name 필드는 필수 항목임)
+        response = self.client.post(self.URL)  # 아무 데이터도 보내지 않음 (Amenity 모델에서 name 필드는 필수 항목임)
         data = response.json()
 
         self.assertEqual(response.status_code, 400)
@@ -115,7 +119,6 @@ class TestAmenity(APITestCase):
         wrong_name = ""
         for i in range(155):
             wrong_name += random.choice(string_pool)
-        print(wrong_name)
 
         response = self.client.put(
             self.URL + str(1), 
